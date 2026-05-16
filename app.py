@@ -22,7 +22,7 @@ def load_model_from_gdrive():
             return None
             
     # Memuat model ke memori menggunakan joblib (sesuaikan jika menggunakan keras/torch)
-return joblib.load(MODEL_PATH)
+    return joblib.load(MODEL_PATH)
 
 # Memanggil fungsi pemuatan model
 model = load_model_from_gdrive()
