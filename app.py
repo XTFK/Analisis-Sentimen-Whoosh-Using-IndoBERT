@@ -13,8 +13,7 @@ GOOGLE_DRIVE_ID = "1X1_G56_gyC7m7dYL2nGetKdCXArYxnxM"
 def load_model_from_gdrive():
     # Periksa apakah file model sudah ada di server lokal Streamlit Cloud
     if not os.path.exists(MODEL_PATH):
-        with st.spinner("Sedang mengunduh model dari Google Drive (Proses ini hanya berjalan sekali saat startup)..."):
-        url = f'https://drive.google.com/uc?id={GOOGLE_DRIVE_ID}'
+        with st.spinner("Sedang mengunduh model dari Google Drive (Proses ini hanya berjalan sekali saat startup)..."): url = f'https://drive.google.com/uc?id={GOOGLE_DRIVE_ID}'
         try:
             gdown.download(url, MODEL_PATH, quiet=False)
             st.success("Unduhan model berhasil selesai!")
