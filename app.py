@@ -37,8 +37,7 @@ user_input = st.text_area("Masukkan Kalimat untuk Dianalisis:", "Saya sangat pua
 if st.button("Analisis Sentimen"):
     if user_input:
         if model is not None:
-            # Contoh logika prediksi (Sesuaikan dengan format preprocessing model
-Anda)
+            # Contoh logika prediksi (Sesuaikan dengan format preprocessing modelAnda)
             # prediksi = model.predict([user_input])[0]
 
             # Simulasi hasil prediksi demi demonstrasi antarmuka
