@@ -15,7 +15,7 @@ st.set_page_config(
 # ── Constants ─────────────────────────────────────────────────────────────────
 # Ganti dengan path model kamu di Hugging Face Hub, contoh:
 # "username/whoosh-indobert-sentiment"
-MODEL_NAME = "indolem/indobert-base-uncased"   # ← GANTI INI setelah upload ke HF Hub
+MODEL_NAME = "xtfk/Whoosh_IndoBERT_Sentiment"   # ← GANTI INI setelah upload ke HF Hub
 
 LABEL_MAP  = {0: "Negatif", 1: "Netral", 2: "Positif"}
 LABEL_EMOJI = {0: "😠", 1: "😐", 2: "😊"}
