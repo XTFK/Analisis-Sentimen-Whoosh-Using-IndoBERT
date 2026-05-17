@@ -206,7 +206,7 @@ html, body, [class*="css"] {
 st.markdown("""
 <div class="header">
   <div class="header-label">Analisis Teks Berbahasa Indonesia</div>
-  <h1>Whoosh<br>Sentiment Analyzer</h1>
+  <h1>Whoosh Sentiment Analyzer</h1>
   <p>
     Sistem klasifikasi sentimen komentar publik terhadap Kereta Cepat Whoosh
     menggunakan model IndoBERT yang telah dilakukan fine-tuning pada data
