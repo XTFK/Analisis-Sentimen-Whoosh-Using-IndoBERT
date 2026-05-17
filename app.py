@@ -294,31 +294,32 @@ if analyze_btn and user_input.strip():
     color = LABEL_COLOR[label_id]
     conf  = probs[label_id] * 100
 
-    st.markdown(f"""
-    <div class="result-card">
-        <div class="section-label">Hasil Analisis</div>
-        <div class="result-sentiment" style="color:{color};">{label}</div>
-        <div class="result-conf">Tingkat kepercayaan: {conf:.1f}%</div>
+    prob_bars_html = ""
+    for i in range(3):
+        lbl = LABEL_MAP[i]
+        clr = LABEL_COLOR[i]
+        pct = probs[i] * 100
+        prob_bars_html += (
+            f'<div class="prob-row">'
+            f'<span class="prob-label">{lbl}</span>'
+            f'<div class="prob-bar-bg">'
+            f'<div class="prob-bar" style="width:{pct:.1f}%; background:{clr};"></div>'
+            f'</div>'
+            f'<span class="prob-pct">{pct:.1f}%</span>'
+            f'</div>'
+        )
 
-        <hr class="thin-divider">
-
-        <div class="section-label">Distribusi Probabilitas</div>
-        <div class="prob-section">
-    """ + "".join([
-        f"""
-        <div class="prob-row">
-            <span class="prob-label">{LABEL_MAP[i]}</span>
-            <div class="prob-bar-bg">
-                <div class="prob-bar"
-                     style="width:{probs[i]*100:.1f}%; background:{LABEL_COLOR[i]};"></div>
-            </div>
-            <span class="prob-pct">{probs[i]*100:.1f}%</span>
-        </div>
-        """ for i in range(3)
-    ]) + """
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    result_html = (
+        f'<div class="result-card">'
+        f'<div class="section-label">Hasil Analisis</div>'
+        f'<div class="result-sentiment" style="color:{color};">{label}</div>'
+        f'<div class="result-conf">Tingkat kepercayaan: {conf:.1f}%</div>'
+        f'<hr class="thin-divider">'
+        f'<div class="section-label">Distribusi Probabilitas</div>'
+        f'<div class="prob-section">{prob_bars_html}</div>'
+        f'</div>'
+    )
+    st.markdown(result_html, unsafe_allow_html=True)
 
     with st.expander("Detail Preprocessing"):
         st.markdown(f"""
