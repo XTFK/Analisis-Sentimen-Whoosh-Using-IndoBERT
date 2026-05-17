@@ -47,7 +47,7 @@ html, body, [class*="css"] {
     margin-bottom: .6rem;
 }
 .header h1 {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 2.6rem;
     font-weight: 600;
     color: #111;
@@ -81,7 +81,7 @@ html, body, [class*="css"] {
     margin-bottom: 2rem;
 }
 .result-sentiment {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 2.2rem;
     font-weight: 600;
     letter-spacing: .02em;
