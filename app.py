@@ -226,7 +226,7 @@ def load_model():
 with st.spinner("Memuat model IndoBERT..."):
     tokenizer, model = load_model()
 
-st.success("Model berhasil dimuat dan siap digunakan.")
+
 
 # ── Text cleaning ─────────────────────────────────────────────────────────────
 def clean_text(text: str) -> str:
