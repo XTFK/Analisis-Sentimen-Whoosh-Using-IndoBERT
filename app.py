@@ -5,93 +5,217 @@ import string
 import emoji
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-# ── Page config ──────────────────────────────────────────────────────────────
+# ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Whoosh Sentiment Analyzer",
-    page_icon="🚄",
+    page_icon="",
     layout="centered",
 )
 
 # ── Constants ─────────────────────────────────────────────────────────────────
-# Ganti dengan path model kamu di Hugging Face Hub, contoh:
-# "username/whoosh-indobert-sentiment"
-MODEL_NAME = "xtfk/Whoosh_IndoBERT_Sentiment"   # ← GANTI INI setelah upload ke HF Hub
+MODEL_NAME = "indolem/indobert-base-uncased"   # ← Ganti setelah upload ke HF Hub
 
-LABEL_MAP  = {0: "Negatif", 1: "Netral", 2: "Positif"}
-LABEL_EMOJI = {0: "😠", 1: "😐", 2: "😊"}
-LABEL_COLOR = {0: "#e74c3c", 1: "#3498db", 2: "#2ecc71"}
+LABEL_MAP   = {0: "Negatif", 1: "Netral", 2: "Positif"}
+LABEL_COLOR = {0: "#C0392B", 1: "#2C3E50", 2: "#1A6B3C"}
 
 # ── Styling ───────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap');
 
-html, body, [class*="css"] { font-family: 'Sora', sans-serif; }
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif;
+    background-color: #ffffff;
+    color: #1a1a1a;
+}
 
-.main { background: #0d0d0d; }
+.stApp { background-color: #ffffff; }
+.block-container { padding-top: 3rem; max-width: 720px; }
 
-.hero {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    border: 1px solid #e94560;
-    border-radius: 16px;
+/* Header */
+.header {
+    border-bottom: 1px solid #e8e8e8;
+    padding-bottom: 2rem;
+    margin-bottom: 2.5rem;
+}
+.header-label {
+    font-size: .7rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: #999;
+    font-weight: 500;
+    margin-bottom: .6rem;
+}
+.header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.6rem;
+    font-weight: 600;
+    color: #111;
+    margin: 0 0 .5rem;
+    line-height: 1.15;
+}
+.header p {
+    font-size: .875rem;
+    color: #777;
+    margin: 0;
+    line-height: 1.6;
+    font-weight: 300;
+}
+
+/* Section label */
+.section-label {
+    font-size: .7rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: #aaa;
+    font-weight: 500;
+    margin-bottom: .75rem;
+}
+
+/* Result card */
+.result-card {
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
     padding: 2rem 2.5rem;
-    margin-bottom: 2rem;
-    text-align: center;
-}
-.hero h1 { font-size: 2rem; font-weight: 700; color: #fff; margin: 0 0 .4rem; }
-.hero p  { color: #aaa; margin: 0; font-size: .95rem; }
-.hero span { color: #e94560; }
-
-.result-box {
-    border-radius: 14px;
-    padding: 1.6rem 2rem;
     margin-top: 1.5rem;
-    text-align: center;
-    border: 2px solid;
+    margin-bottom: 2rem;
 }
-.result-label { font-size: 2rem; font-weight: 700; margin-bottom: .3rem; }
-.result-conf  { font-size: .9rem; color: #ccc; font-family: 'DM Mono', monospace; }
+.result-sentiment {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    margin-bottom: .25rem;
+}
+.result-conf {
+    font-size: .78rem;
+    color: #999;
+    letter-spacing: .04em;
+    font-weight: 400;
+}
 
+/* Probability bars */
+.prob-section { margin-top: 1.5rem; }
 .prob-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin: .4rem 0;
-    font-size: .88rem;
+    margin: .75rem 0;
+    gap: 1rem;
+}
+.prob-label {
+    width: 64px;
+    font-size: .78rem;
+    color: #555;
+    letter-spacing: .03em;
+    font-weight: 500;
+    flex-shrink: 0;
 }
 .prob-bar-bg {
     flex: 1;
-    height: 8px;
-    background: #222;
-    border-radius: 4px;
-    margin: 0 .8rem;
+    height: 2px;
+    background: #ebebeb;
+    border-radius: 2px;
     overflow: hidden;
 }
-.prob-bar { height: 100%; border-radius: 4px; transition: width .6s ease; }
+.prob-bar {
+    height: 100%;
+    border-radius: 2px;
+}
+.prob-pct {
+    width: 44px;
+    text-align: right;
+    font-size: .78rem;
+    color: #999;
+    font-weight: 400;
+    flex-shrink: 0;
+    letter-spacing: .02em;
+}
 
+/* Divider */
+.thin-divider {
+    border: none;
+    border-top: 1px solid #f0f0f0;
+    margin: 1.5rem 0;
+}
+
+/* Info box */
 .info-box {
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 10px;
-    padding: 1rem 1.2rem;
-    font-size: .82rem;
+    background: #fafafa;
+    border: 1px solid #ebebeb;
+    border-radius: 4px;
+    padding: 1.2rem 1.5rem;
+    font-size: .78rem;
     color: #888;
-    margin-top: 1rem;
-    font-family: 'DM Mono', monospace;
+    line-height: 1.7;
+}
+.info-box b { color: #555; font-weight: 500; }
+
+/* Streamlit widget overrides */
+.stTextArea textarea {
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 4px !important;
+    font-size: .875rem !important;
+    color: #1a1a1a !important;
+    background: #fff !important;
+    padding: 1rem !important;
+    font-family: 'Inter', sans-serif !important;
+    resize: none !important;
+    box-shadow: none !important;
+}
+.stTextArea textarea:focus {
+    border-color: #999 !important;
+    box-shadow: none !important;
+}
+.stButton button {
+    background: #111 !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 4px !important;
+    font-size: .72rem !important;
+    letter-spacing: .12em !important;
+    text-transform: uppercase !important;
+    font-weight: 500 !important;
+    padding: .7rem 2rem !important;
+    transition: background .2s ease !important;
+}
+.stButton button:hover { background: #333 !important; }
+
+/* Footer */
+.footer {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 1.5rem;
+    margin-top: 3rem;
+    font-size: .72rem;
+    color: #ccc;
+    letter-spacing: .06em;
+    text-align: center;
+}
+
+/* Expander */
+.streamlit-expanderHeader {
+    font-size: .72rem !important;
+    letter-spacing: .1em !important;
+    text-transform: uppercase !important;
+    color: #aaa !important;
+    font-weight: 500 !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Hero ──────────────────────────────────────────────────────────────────────
+# ── Header ────────────────────────────────────────────────────────────────────
 st.markdown("""
-<div class="hero">
-  <h1>🚄 Whoosh <span>Sentiment</span> Analyzer</h1>
-  <p>Analisis sentimen komentar TikTok tentang Kereta Cepat Whoosh<br>
-  menggunakan model <b>IndoBERT</b> fine-tuned Bahasa Indonesia</p>
+<div class="header">
+  <div class="header-label">Analisis Teks Berbahasa Indonesia</div>
+  <h1>Whoosh<br>Sentiment Analyzer</h1>
+  <p>
+    Sistem klasifikasi sentimen komentar publik terhadap Kereta Cepat Whoosh
+    menggunakan model IndoBERT yang telah dilakukan fine-tuning pada data
+    komentar TikTok berbahasa Indonesia.
+  </p>
 </div>
 """, unsafe_allow_html=True)
 
-# ── Load model (cached) ───────────────────────────────────────────────────────
+# ── Load model ────────────────────────────────────────────────────────────────
 @st.cache_resource(show_spinner=False)
 def load_model():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
@@ -99,12 +223,12 @@ def load_model():
     model.eval()
     return tokenizer, model
 
-with st.spinner("⏳ Memuat model IndoBERT... (hanya sekali, harap tunggu)"):
+with st.spinner("Memuat model IndoBERT..."):
     tokenizer, model = load_model()
 
-st.success("✅ Model siap digunakan!")
+st.success("Model berhasil dimuat dan siap digunakan.")
 
-# ── Text cleaning (sama dengan notebook) ─────────────────────────────────────
+# ── Text cleaning ─────────────────────────────────────────────────────────────
 def clean_text(text: str) -> str:
     if not isinstance(text, str):
         return ""
@@ -118,7 +242,7 @@ def clean_text(text: str) -> str:
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-# ── Predict function ──────────────────────────────────────────────────────────
+# ── Predict ───────────────────────────────────────────────────────────────────
 def predict(text: str):
     cleaned = clean_text(text)
     inputs  = tokenizer(
@@ -134,84 +258,85 @@ def predict(text: str):
     pred_label = int(torch.argmax(logits, dim=-1).item())
     return pred_label, probs, cleaned
 
-# ── Input area ────────────────────────────────────────────────────────────────
-st.markdown("### ✍️ Masukkan Komentar")
+# ── Input ─────────────────────────────────────────────────────────────────────
+st.markdown('<div class="section-label">Masukkan Komentar</div>', unsafe_allow_html=True)
 user_input = st.text_area(
     label="",
-    placeholder="Contoh: Whoosh cepet banget, worth it banget buat perjalanan Bandung-Jakarta!",
-    height=130,
+    placeholder="Tuliskan komentar yang ingin dianalisis...",
+    height=120,
     label_visibility="collapsed",
 )
 
-col1, col2, col3 = st.columns([1, 2, 1])
+col1, col2, col3 = st.columns([2, 2, 2])
 with col2:
-    analyze_btn = st.button("🔍 Analisis Sentimen", use_container_width=True, type="primary")
+    analyze_btn = st.button("Analisis", use_container_width=True)
 
 # ── Contoh komentar ───────────────────────────────────────────────────────────
-with st.expander("💡 Coba contoh komentar"):
+with st.expander("Contoh Komentar"):
     examples = [
-        "Whoosh kerennn, Jakarta Bandung cuma 40 menit gila sih!",
-        "Tiketnya mahal banget, gak worth it sama sekali",
-        "Udah nyoba kemarin, kursinya nyaman dan tepat waktu",
-        "Biasa aja sih, sama kayak kereta biasa tapi lebih mahal",
-        "Pelayanannya buruk banget, AC rusak dan petugasnya gak helpful",
+        "Whoosh sangat cepat, perjalanan Jakarta–Bandung hanya 40 menit.",
+        "Harga tiket terlalu mahal, tidak sebanding dengan fasilitasnya.",
+        "Sudah mencoba kemarin, kursi nyaman dan keberangkatan tepat waktu.",
+        "Biasa saja, tidak jauh berbeda dengan kereta reguler namun lebih mahal.",
+        "Pelayanan kurang memuaskan, AC tidak berfungsi optimal.",
     ]
     for ex in examples:
-        if st.button(f"📌 {ex[:60]}...", key=ex):
-            user_input = ex
+        if st.button(ex, key=ex):
+            user_input  = ex
             analyze_btn = True
 
 # ── Result ────────────────────────────────────────────────────────────────────
 if analyze_btn and user_input.strip():
-    with st.spinner("🔄 Menganalisis..."):
+    with st.spinner("Menganalisis komentar..."):
         label_id, probs, cleaned = predict(user_input)
 
     label = LABEL_MAP[label_id]
     color = LABEL_COLOR[label_id]
-    emj   = LABEL_EMOJI[label_id]
     conf  = probs[label_id] * 100
 
-    # Result box
     st.markdown(f"""
-    <div class="result-box" style="border-color:{color}; background:{color}18;">
-        <div class="result-label" style="color:{color};">{emj} {label}</div>
-        <div class="result-conf">Confidence: {conf:.1f}%</div>
+    <div class="result-card">
+        <div class="section-label">Hasil Analisis</div>
+        <div class="result-sentiment" style="color:{color};">{label}</div>
+        <div class="result-conf">Tingkat kepercayaan: {conf:.1f}%</div>
+
+        <hr class="thin-divider">
+
+        <div class="section-label">Distribusi Probabilitas</div>
+        <div class="prob-section">
+    """ + "".join([
+        f"""
+        <div class="prob-row">
+            <span class="prob-label">{LABEL_MAP[i]}</span>
+            <div class="prob-bar-bg">
+                <div class="prob-bar"
+                     style="width:{probs[i]*100:.1f}%; background:{LABEL_COLOR[i]};"></div>
+            </div>
+            <span class="prob-pct">{probs[i]*100:.1f}%</span>
+        </div>
+        """ for i in range(3)
+    ]) + """
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Probability bars
-    st.markdown("#### 📊 Distribusi Probabilitas")
-    for i, (lbl, clr) in enumerate(zip(LABEL_MAP.values(), LABEL_COLOR.values())):
-        pct = probs[i] * 100
-        st.markdown(f"""
-        <div class="prob-row">
-            <span style="width:70px; color:{clr};">{LABEL_EMOJI[i]} {lbl}</span>
-            <div class="prob-bar-bg">
-                <div class="prob-bar" style="width:{pct:.1f}%; background:{clr};"></div>
-            </div>
-            <span style="width:50px; text-align:right; font-family:'DM Mono',monospace; color:#ccc;">
-                {pct:.1f}%
-            </span>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # Debug info
-    with st.expander("🔧 Detail preprocessing"):
+    with st.expander("Detail Preprocessing"):
         st.markdown(f"""
         <div class="info-box">
-        <b>Input asli:</b><br>{user_input}<br><br>
-        <b>Setelah cleaning:</b><br>{cleaned}
+            <b>Teks asli</b><br>{user_input}
+            <br><br>
+            <b>Setelah preprocessing</b><br>{cleaned}
         </div>
         """, unsafe_allow_html=True)
 
 elif analyze_btn and not user_input.strip():
-    st.warning("⚠️ Mohon masukkan komentar terlebih dahulu.")
+    st.warning("Mohon masukkan teks komentar terlebih dahulu.")
 
 # ── Footer ────────────────────────────────────────────────────────────────────
-st.markdown("---")
-st.markdown(
-    "<p style='text-align:center; color:#555; font-size:.8rem;'>"
-    "Model: IndoBERT fine-tuned · Dataset: Komentar TikTok Whoosh · "
-    "Built with Streamlit 🎈</p>",
-    unsafe_allow_html=True,
-)
+st.markdown("""
+<div class="footer">
+    Model IndoBERT Fine-tuned &nbsp;&middot;&nbsp;
+    Dataset Komentar TikTok Whoosh &nbsp;&middot;&nbsp;
+    Dibangun menggunakan Streamlit
+</div>
+""", unsafe_allow_html=True)
