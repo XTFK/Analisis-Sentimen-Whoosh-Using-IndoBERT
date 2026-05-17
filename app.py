@@ -196,7 +196,7 @@ html, body, [class*="css"] {
     font-size: .72rem !important;
     letter-spacing: .1em !important;
     text-transform: uppercase !important;
-    color: #aaa !important;
+    color: #404040 !important;
     font-weight: 500 !important;
 }
 </style>
