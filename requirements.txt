@@ -3,3 +3,4 @@ torch>=2.0.0
 transformers>=4.40.0
 emoji>=2.10.0
 sentencepiece>=0.1.99
+torchvision>=0.15.0
