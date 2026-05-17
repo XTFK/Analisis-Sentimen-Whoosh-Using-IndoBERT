@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # ── Constants ─────────────────────────────────────────────────────────────────
-MODEL_NAME = "indolem/indobert-base-uncased"   # ← Ganti setelah upload ke HF Hub
+MODEL_NAME = "xtfk/Whoosh_IndoBERT_Sentiment"   # ← Ganti setelah upload ke HF Hub
 
 LABEL_MAP   = {0: "Negatif", 1: "Netral", 2: "Positif"}
 LABEL_COLOR = {0: "#C0392B", 1: "#2C3E50", 2: "#1A6B3C"}
